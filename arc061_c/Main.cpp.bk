@@ -1,0 +1,138 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+typedef long long ll;
+int N, M, Q, P, C;
+
+class Node {
+public:
+	int station;
+	int cost;
+	int company;
+	Node* next;
+
+	Node(int _s, int _cos, int _com) {
+		station = _s;
+		cost = _cos;
+		company = _com;
+		next = NULL;
+	}
+};
+
+class Queue {
+public:
+	Node *head;
+	Node *tail;
+
+	Queue() {
+		head = NULL;
+		tail = NULL;
+	}
+
+	Node dequeue() {
+		Node n = *head;
+		if (head != NULL) {
+			head = (*head).next;
+		}
+		if (head == NULL) {
+			tail = NULL;
+		}
+		cout << "n: " << n.station;
+		return n;
+	}
+
+	void enqueue(Node n) {
+		if (head == NULL) {
+			head = &n;
+			tail = &n;
+		} else {
+			(*tail).next = &n;
+			tail = &n;
+		}
+	}
+
+	bool isEmpty() {
+		return (head == NULL);
+	}
+};
+
+int main() {
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	
+	cin >> N >> M;
+	vector<vector<pair<int, int> > > rosen(N+1);
+	vector<int> chk(N+1, 0);
+
+	while (M--) {
+		cin >> Q >> P >> C;
+		pair<int, int> p1(P, C);
+		pair<int, int> p2(Q, C);
+		rosen[Q].push_back(p1);
+		rosen[P].push_back(p2);
+	}
+	Queue q1, q2;
+	Node n(1, 0, 0);
+	cout << "n.station: " << n.station;
+	q2.enqueue(n);
+	int cost = 1;
+	bool isFinish = false;
+	int idx = 0;
+	while (true) {
+		vector<bool> chk2(N+1, false);
+		chk2[idx] = true;
+		while (!q1.isEmpty()) {
+	cout << "fuga" << endl;
+				Node n1 = q1.dequeue();
+			chk2[n1.station] = true;
+			for (pair<int, int> r: rosen[n1.station]) {
+				cost = n1.cost + ((n1.company == r.second) ? 0 : 1);
+				if (r.first == N) {
+					isFinish = true;
+					break;
+				}
+				if ((chk[r.first] > 0 && chk[r.first] < cost) || chk2[r.first]) continue;
+				if (n1.company == r.second) {
+					chk2[r.first] = true;
+				}
+				chk[r.first] = cost;
+				Node _n(r.first, cost, r.second);
+				if (n1.company == r.second) {
+					q1.enqueue(_n);
+				} else {
+					q2.enqueue(_n);
+				}
+			}
+			if (isFinish) break;
+		}
+		if (isFinish || q2.isEmpty()) {
+			break;
+		}
+		cout << "fuga2" << endl;
+		Node n2 = q2.dequeue();
+		idx = n2.station;
+		cout << "fuga: " << n2.station << endl;
+ 		for (pair<int, int> r: rosen[n2.station]) {
+ 			cost = n2.cost + ((n2.company == r.second) ? 0 : 1);
+			if (r.first == N) {
+				isFinish = true;
+				break;
+			}
+			if (chk[r.first] > 0 && chk[r.first] < cost) continue;
+			chk[r.first] = cost;
+			Node _n(r.first, cost, r.second);
+			if (n2.company == r.second) {
+				q1.enqueue(_n);
+			} else {
+				q2.enqueue(_n);
+			}
+		}
+		cout << "fuga3" << endl;
+		if (isFinish) break;
+	}
+
+	if (!isFinish) cost = -1;
+	cout << cost << endl;
+	return 0;
+}
